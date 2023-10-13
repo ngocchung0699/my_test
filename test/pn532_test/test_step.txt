@@ -1,0 +1,5 @@
+cd WiringPi
+sudo ./build
+cd..
+gcc -o main get_uid_spi.c pn532.c pn532_rpi.c -lwiringPi
+sudo ./main
