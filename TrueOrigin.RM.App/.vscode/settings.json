@@ -1,0 +1,7 @@
+{
+    "python.analysis.extraPaths": [
+        "./Database/SqlLite/Models",
+        "./Database/Models",
+        "./Database/DQD_EntityFrameworkCore/Repository"
+    ]
+}

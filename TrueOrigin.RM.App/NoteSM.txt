@@ -1,0 +1,79 @@
+C:\Users\TranTrung\AppData\Local\Programs\Python\Python39\Lib\site-packages
+
+Máy phát hành iseal
+Phương pháp hoạt động
+- input: 
+	file cấp số seri: txt
+	
+- output:
+	Nạp vào các stamp iseal 
+
+- tiến trình:
+
+	Máy hoạt động chạy động cợ quay lô stamp, cảm ứng kim loại hoạt động để phát hiện tem vào vị trí. Khi phát hiện stamp vào đúng vị trí để nạp 
+	-> dừng động cơ tiến hành ghi stamp -> Đọc lại dữ liệu để check với dữ liệu ghi nếu đúng tiếp tục quay động cơ check tiếp theo , nếu sai báo lỗi 
+Máy trạng thái:
+			INIT		RUN			PAUSE_PUSH			TRY_COUNT		ALARM_STOPSS 		CHECK		UPDATE		STOP		
+start		RUN			RUN			X
+detect		X			PAUSE_PUSH		
+push		X			X			
+success								CHECK	
+fail								TRY_COUNT					
+count													ALARM_STOPSS				
+resume																	PAUSE_PUSH
+check_ok																					UPDATE		RUN		
+check_er																					ALARM_STOPSS																						
+stop		stop		stop		stop				stop			stop				stop		stop		stop		
+	
+Giao diện:
+	Xây dựng giao diện trên qr-designer 
+	build qua python:
+        python -m PyQt5.uic.pyuic iseal.ui -o iseal.py
+	Sử dụng Pyqt để thực hiện check các sự kiện
+
+Cấu trúc project pyqt
+
+Các bước để phát hành tem:
+* thẻ ultralight
+Bước 1: try connect kết nối với thẻ
+Bước 2: Getinfo: Lấy thông tin thẻ để thiết lập các lênh CMD tương ứng
+Bước 3: Create password. tạo mật khẩu cho thẻ từ uid hash256 của 8 byte uid (Từ đọc page 0 -> 16 byte) -> get 6 byte từ hash làm password theo vị trí 201503
+Bước 4: Reset password. // Để tải sự dụng các thẻ đã đc phát hành -> điền mật khẩu đúng -> vô hiệu hóa mật khẩu -> tem mới bỏ qua bước này
+Bước 5: Ghi info tem:  start-page 4: ID-8byte : seri_stamp, sign-32byte : 0x00, quick-12byte: 0x00, re-sign-32byte: 0x00. re-quick-12byte: 0x00, version-page39 endbyte: 0x02
+Bước 5: Ghi authenticate và page 26
+Bước 6: Set password. 
+
+
+Đọc cảm biến 
+input khi phát hiện tem -> có tín hiệu từ mức cao xuống thấp tiến hành nạp code
+Các trường hợp có thể xảy ra
+1. Sau khi nạp chạy động cơ -> check tín hiệu tiếp theo -> cần chống nhiễu lúc vào và lúc ra của chip -> OK
+Cần xem xét sử dụng timer nhỏ để check 
+
+
+Chức năng lấy thông tin lô sản xuất từ server -> xuống máy phát hành
+bước 1: đăng nhập vào tài khoản -> kết nối với server lấy dữ liệu lô sản xuất đc tạo ra cho sản phẩm
+
+Login tài khoản: 
+Get toàn bộ các ro đang có với trạng thái chưa complete, stop
+*th1: 
+	Trong các ro đều trạng thái waiting -> Cho phép chọn ro để tiến hành phát hành
+    page Thực hiện unable, nút nhấn Chọn page phát hành unable khi chưa chọn ro
+    Sau khi chọn -> Lưu nội dung của ro về local gắn với id
+    - Tạo release_order ở local
+    Trên máy local: chưa có lệnh phát hành: -> tạo lệnh phát hành
+    Trên máy local: đã tồn tại lệnh phát hành: -> Lấy thông tin lệnh phát hành và 
+    Đồng bộ trạng thái phát hành của máy local và máy server -> 
+*th2:
+    Trong các ro có ro khác trạng thái waiting -> select luôn ro đó là ro hoạt động hiện tại của Máy
+    unable nút chọn và select table ro, Page Thực hiện hiển thị thông tin ro
+
+* Mục đích trong quá trình chạy mất mạng vẫn thực hiện phát hành như thường -> khi có mạng sẽ cập nhật nội dung lên server
+    Thông tin lưu trên local trong quá trình hoạt động: 
+        Thông tin lệnh phát hành đang thực hiện
+        Thông tin các seri stamps đang phát hành
+        Sau khi lệnh phát hành kết thúc -> update dữ liệu lên máy server trạng thái lệnh hoàn thành -> clear lệnh phát hành local và seri stamps
+
+
+
+

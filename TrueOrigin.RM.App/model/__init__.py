@@ -1,0 +1,1 @@
+print("Khởi tạo model")
